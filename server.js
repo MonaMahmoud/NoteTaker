@@ -10,7 +10,7 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
-//app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) =>
 
@@ -35,51 +35,51 @@ app.post('/api/notes', (req, res) => {
         newNote.id = uuidv4();
         var notesObjects = [];
 
-        notesString = fs.readFileSync('db/db.json', { encoding: 'utf8' });
+        // notesString = fs.readFileSync('db/db.json', { encoding: 'utf8' });
 
-        if (notesString) {
-            //console.log('File data:', notesString);
-            obj = JSON.parse(notesString);
-            if (obj.length != 0) {
-                for (var i in obj) {
-                    notesObjects.push(obj[i]);
+        // if (notesString) {
+        //     //console.log('File data:', notesString);
+        //     obj = JSON.parse(notesString);
+        //     if (obj.length != 0) {
+        //         for (var i in obj) {
+        //             notesObjects.push(obj[i]);
+        //         }
+        //     }
+        // }
+
+        // notesObjects.push(newNote);
+
+        // // write JSON string to a file
+        // fs.writeFileSync('db/db.json', JSON.stringify(notesObjects), { encoding: 'utf8' });
+        // //console.log("JSON data is saved.");
+        // res.status(200);
+
+
+        fs.readFile('db/db.json', 'utf8', (err, notesString) => {
+            if (err) {
+                //console.log("File read failed:", err)
+                return;
+            }
+            if (notesString) {
+                //console.log('File data:', notesString);
+                obj = JSON.parse(notesString);
+                if (obj.length != 0) {
+                    for (var i in obj) {
+                        notesObjects.push(obj[i]);
+                    }
                 }
             }
-        }
 
-        notesObjects.push(newNote);
-
-        // write JSON string to a file
-        fs.writeFileSync('db/db.json', JSON.stringify(notesObjects), { encoding: 'utf8' });
-        //console.log("JSON data is saved.");
-        res.status(200);
-
-
-        // fs.readFile('db/db.json', 'utf8', (err, notesString) => {
-        //     if (err) {
-        //         //console.log("File read failed:", err)
-        //         return;
-        //     }
-        //     if (notesString) {
-        //         //console.log('File data:', notesString);
-        //         obj = JSON.parse(notesString);
-        //         if (obj.length != 0) {
-        //             for (var i in obj) {
-        //                 notesObjects.push(obj[i]);
-        //             }
-        //         }
-        //     }
-
-        //     notesObjects.push(newNote);
-        //     // write JSON string to a file
-        //     fs.writeFile('db/db.json', JSON.stringify(notesObjects), (err) => {
-        //         if (err) {
-        //             throw err;
-        //         }
-        //         //console.log("JSON data is saved.");
-        //         res.status(200);
-        //     });
-        // });
+            notesObjects.push(newNote);
+            // write JSON string to a file
+            fs.writeFile('db/db.json', JSON.stringify(notesObjects), (err) => {
+                if (err) {
+                    throw err;
+                }
+                //console.log("JSON data is saved.");
+                res.status(200).json(notesObjects);
+            });
+        });
     } else {
         res.status(500).json('Error in adding note');
     }
