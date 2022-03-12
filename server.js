@@ -34,31 +34,52 @@ app.post('/api/notes', (req, res) => {
         };
         newNote.id = uuidv4();
         var notesObjects = [];
-        fs.readFile('db/db.json', 'utf8', (err, notesString) => {
-            if (err) {
-                //console.log("File read failed:", err)
-                return;
-            }
-            if (notesString) {
-                //console.log('File data:', notesString);
-                obj = JSON.parse(notesString);
-                if (obj.length != 0) {
-                    for (var i in obj) {
-                        notesObjects.push(obj[i]);
-                    }
-                }
-            }
 
-            notesObjects.push(newNote);
-            // write JSON string to a file
-            fs.writeFile('db/db.json', JSON.stringify(notesObjects), (err) => {
-                if (err) {
-                    throw err;
+        notesString = fs.readFileSync('db/db.json', { encoding: 'utf8' });
+
+        if (notesString) {
+            //console.log('File data:', notesString);
+            obj = JSON.parse(notesString);
+            if (obj.length != 0) {
+                for (var i in obj) {
+                    notesObjects.push(obj[i]);
                 }
-                //console.log("JSON data is saved.");
-                res.status(200);
-            });
-        });
+            }
+        }
+
+        notesObjects.push(newNote);
+
+        // write JSON string to a file
+        fs.writeFileSync('db/db.json', JSON.stringify(notesObjects), { encoding: 'utf8' });
+        //console.log("JSON data is saved.");
+        res.status(200);
+
+
+        // fs.readFile('db/db.json', 'utf8', (err, notesString) => {
+        //     if (err) {
+        //         //console.log("File read failed:", err)
+        //         return;
+        //     }
+        //     if (notesString) {
+        //         //console.log('File data:', notesString);
+        //         obj = JSON.parse(notesString);
+        //         if (obj.length != 0) {
+        //             for (var i in obj) {
+        //                 notesObjects.push(obj[i]);
+        //             }
+        //         }
+        //     }
+
+        //     notesObjects.push(newNote);
+        //     // write JSON string to a file
+        //     fs.writeFile('db/db.json', JSON.stringify(notesObjects), (err) => {
+        //         if (err) {
+        //             throw err;
+        //         }
+        //         //console.log("JSON data is saved.");
+        //         res.status(200);
+        //     });
+        // });
     } else {
         res.status(500).json('Error in adding note');
     }
