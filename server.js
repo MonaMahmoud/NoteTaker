@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const PORT = process.env.PORT || 3001;
+var notesObjects;
 
 // Initialize our app variable by setting it to the value of express()
 const app = express();
@@ -33,35 +34,14 @@ app.post('/api/notes', (req, res) => {
             text,
         };
         newNote.id = uuidv4();
-        var notesObjects = [];
-
-        // notesString = fs.readFileSync('db/db.json', { encoding: 'utf8' });
-
-        // if (notesString) {
-        //     //console.log('File data:', notesString);
-        //     obj = JSON.parse(notesString);
-        //     if (obj.length != 0) {
-        //         for (var i in obj) {
-        //             notesObjects.push(obj[i]);
-        //         }
-        //     }
-        // }
-
-        // notesObjects.push(newNote);
-
-        // // write JSON string to a file
-        // fs.writeFileSync('db/db.json', JSON.stringify(notesObjects), { encoding: 'utf8' });
-        // //console.log("JSON data is saved.");
-        // res.status(200);
-
 
         fs.readFile('db/db.json', 'utf8', (err, notesString) => {
             if (err) {
-                //console.log("File read failed:", err)
                 return;
             }
+            notesObjects = [];
             if (notesString) {
-                //console.log('File data:', notesString);
+
                 obj = JSON.parse(notesString);
                 if (obj.length != 0) {
                     for (var i in obj) {
@@ -76,7 +56,6 @@ app.post('/api/notes', (req, res) => {
                 if (err) {
                     throw err;
                 }
-                //console.log("JSON data is saved.");
                 res.status(200).json(notesObjects);
             });
         });
@@ -90,18 +69,50 @@ app.post('/api/notes', (req, res) => {
 app.get('/api/notes', (req, res) => {
     fs.readFile('db/db.json', 'utf8', (err, notesString) => {
         if (err) {
-            // console.log("File read failed:", err)
             return;
         }
         if (notesString) {
-            //console.log('File data:', notesString);
-            //console.log(JSON.parse(notesString));
             res.status(200);
             res.json(JSON.parse(notesString));
         }
     });
 
 });
+
+
+// GET request for deleting a note
+app.delete('/api/notes/:id', (req, res) => {
+    console.log(req.params);
+
+    const id = req.params["id"];
+    console.log(id);
+    fs.readFile('db/db.json', 'utf8', (err, notesString) => {
+        if (err) {
+            return;
+        }
+        notesObjects = [];
+        if (notesString) {
+
+            obj = JSON.parse(notesString);
+            if (obj.length != 0) {
+                for (var i in obj) {
+                    console.log(obj[i]);
+                    if (obj[i]["id"] != id) {
+                        notesObjects.push(obj[i]);
+                    }
+                }
+            }
+            fs.writeFile('db/db.json', JSON.stringify(notesObjects), (err) => {
+                if (err) {
+                    throw err;
+                }
+                res.status(200).json(notesObjects);
+            });
+        }
+    });
+
+});
+
 
 app.listen(PORT, () =>
     console.log(`Example app listening at http://localhost:${PORT}`)
